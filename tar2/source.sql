@@ -1,20 +1,21 @@
-SELECT SUM(M_Price)
-FROM Meal
-         JOIN Order ON Meal.M_Id = Order.M_Id
-WHERE Order.C_Id = 12345;
+SELECT i.S_Company, COUNT(*) AS Num_Ingredients
+FROM Ingredient i
+GROUP BY i.S_Company
+ORDER BY Num_Ingredients DESC;
 
-SELECT M_Name, COUNT(*) AS num_orders
-FROM Meal
-         JOIN Order ON Meal.M_Id = Order.M_Id
-WHERE Meal.K_Name = 'Italian Kitchen'
-GROUP BY M_Name
-ORDER BY num_orders DESC LIMIT 5;
+SELECT k.K_Name
+FROM Kitchen k
+WHERE EXISTS (SELECT *
+              FROM Work w
+                       JOIN Employee e ON w.E_Id = e.E_Id
+              WHERE w.K_Name = k.K_Name
+                AND e.E_Age > 50);
 
 SELECT E_FirstName, E_LastName
 FROM Employee
-         JOIN Work ON Employee.E_Id = Work.E_Id
+         JOIN “WORK” ON Employee.E_Id = “WORK”.E_Id
 GROUP BY E_Id, E_FirstName, E_LastName
-HAVING COUNT(DISTINCT K_Name) > 1;
+HAVING COUNT (DISTINCT K_Name) > 1;
 
 SELECT M_Name, COUNT(*) AS total_orders
 FROM Order
@@ -23,6 +24,24 @@ GROUP BY M_Name
 ORDER BY total_orders DESC LIMIT 1;
 -- To use indexing, we can create an index on the M_Id column in the Order table since it's being used in the join condition. This index will allow for a faster lookup of rows in the Order table when performing the join operation.
 CREATE INDEX order_m_id ON Order (M_Id);
+
+SELECT c.C_Id, c.C_FirstName, c.C_LastName, SUM(m.M_Price) AS Total_Cost
+FROM Customer c
+         JOIN "ORDER" o ON c.C_Id = o.C_Id
+         JOIN Meal m ON o.M_Id = m.M_Id
+GROUP BY c.C_Id, c.C_FirstName, c.C_LastName
+ORDER BY Total_Cost DESC;
+
+SELECT m.M_Name, m.M_Price, k.K_Name
+FROM Meal m
+         JOIN Kitchen k ON m.K_Name = k.K_Name
+ORDER BY m.M_Price DESC
+
+SELECT i.S_Company, COUNT(*) AS Num_Ingredients
+FROM Ingredient i
+GROUP BY i.S_Company
+ORDER BY Num_Ingredients DESC;
+
 
 SELECT DISTINCT C_FirstName, C_LastName
 FROM Customer
@@ -64,3 +83,4 @@ CREATE INDEX ingredient_i_name ON Ingredient (I_Name);
 CREATE INDEX meal_m_id ON Meal (M_Id);
 -- 2. The index on the I_Id column in the Ingredient table will not improve the performance of the query in the second question because the I_Id column is not being used in the join condition or the WHERE clause.
 CREATE INDEX ingredient_i_id ON Ingredient (I_Id);
+
