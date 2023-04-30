@@ -16,6 +16,8 @@ WHERE w.E_Salary = (
     GROUP BY k2.K_Name
     HAVING COUNT(DISTINCT o.C_Id) > 1
 );
+-- not help
+CREATE INDEX idx_k_type on Kitchen(k_Type);
 
 
 -- 2
@@ -26,7 +28,10 @@ FROM Kitchen k
 WHERE e.E_Age > 67
 GROUP BY k.K_Name;
 
+-- Help
 CREATE INDEX idx_employee_age ON Employee (E_Age);
+-- Not help
+CREATE INDEX idx_e_pn ON Employee (E_telephone);
 
 --3
 SELECT k.K_Name, m.M_Name, MAX(m.M_Price) AS Max_Price
@@ -107,3 +112,5 @@ FROM Kitchen k
 WHERE o.Order_Date >= TO_DATE('2022-01-01','YYYY-MM-DD') AND o.Order_Date < TO_DATE('2023-10-01','YYYY-MM-DD')
 GROUP BY k.K_Name
 ORDER BY TotalRevenue DESC;
+
+
