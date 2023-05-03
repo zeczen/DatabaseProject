@@ -1,6 +1,6 @@
 
-### Cafeteria Database Project
-# This project contains a set of SQL queries and commands to manage a cafeteria's database. The database contains several tables to store information about employees, kitchens, meals, orders, and stock.
+# Cafeteria Database Project
+### This project contains a set of SQL queries and commands to manage a cafeteria's database. The database contains several tables to store information about employees, kitchens, meals, orders, and stock.
 
 ## Project Goals
 The main goals of this project are to:
