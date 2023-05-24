@@ -22,26 +22,33 @@ ORDER BY MealCount DESC;
 
 -- Procedures
 
-CREATE OR REPLACE PROCEDURE EmployeeSalary IS
+CREATE
+OR REPLACE PROCEDURE EmployeeSalary IS
   idEmp NUMBER;
-  monthCounter NUMBER;
-  salaryEmp NUMBER;
-  M NUMBER;
-  totalSalaries NUMBER;
+  monthCounter
+NUMBER;
+  salaryEmp
+NUMBER;
+  M
+NUMBER;
+  totalSalaries
+NUMBER;
 CURSOR employeeIterator IS
 SELECT EXTRACT(MONTH FROM sales_date) AS m, employee_id, salary
-FROM employee NATURAL JOIN sales
-WHERE sales_id IN (
-    SELECT sales_id
-    FROM sales
-    WHERE sales_date >= TO_DATE('01/01/2017', 'DD/MM/YYYY')
-      AND sales_date < TO_DATE('01/01/2018', 'DD/MM/YYYY')
-)
+FROM employee
+         NATURAL JOIN sales
+WHERE sales_id IN (SELECT sales_id
+                   FROM sales
+                   WHERE sales_date >= TO_DATE('01/01/2017', 'DD/MM/YYYY')
+                     AND sales_date < TO_DATE('01/01/2018', 'DD/MM/YYYY'))
 ORDER BY employee_id, sales_date;
 BEGIN
-  monthCounter := 0;
-  idEmp := 0;
-  totalSalaries := 0;
+  monthCounter
+:= 0;
+  idEmp
+:= 0;
+  totalSalaries
+:= 0;
 
 FOR emp_rec IN employeeIterator LOOP
     IF idEmp = emp_rec.employee_id AND M != emp_rec.m THEN
@@ -49,11 +56,27 @@ FOR emp_rec IN employeeIterator LOOP
 ELSE
       IF idEmp != 0 THEN
         DBMS_OUTPUT.PUT_LINE('employee_id: ' || idEmp || ' salary for this year: ' || salaryEmp * monthCounter);
-        totalSalaries := totalSalaries + (salaryEmp * monthCounter);
+        totalSalaries
+:= totalSalaries + (salaryEmp * monthCounter);
 END IF;
-      monthCounter := 1;
-      idEmp := emp_rec.employee_id;
-      salaryEmp := emp_rec.salary;
-      M := emp_rec.m;
+      monthCounter
+:= 1;
+      idEmp
+:= emp_rec.employee_id;
+      salaryEmp
+:= emp_rec.salary;
+      M
+:= emp_rec.m;
 END IF;
 END LOOP;
+
+    CREATE
+OR REPLACE PROCEDURE UpdateProductPrice(p_product_id IN NUMBER, p_new_price IN NUMBER) IS
+BEGIN
+UPDATE products
+SET price = p_new_price
+WHERE product_id = p_product_id;
+
+COMMIT;
+END UpdateProductPrice;
+/
