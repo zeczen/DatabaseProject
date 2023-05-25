@@ -1,43 +1,41 @@
 CREATE
-OR REPLACE TRIGGER Check_Stock
-AFTER INSERT ON "Order"
-FOR EACH ROW
-DECLARE
-v_StockQuantity INTEGER;
+OR REPLACE TRIGGER Update_Stock_Quantity
+BEFORE INSERT OR
+UPDATE ON Stock
+    FOR EACH ROW
 BEGIN
-  -- Check if there is enough quantity of ingredients in stock for the ordered meal
-SELECT Quantity
-INTO v_StockQuantity
-FROM Stock
-WHERE K_Name = :NEW.K_Name
-  AND I_Id = (SELECT I_Id FROM Recipe WHERE M_Id = :NEW.M_Id);
-
-IF
-v_StockQuantity < 1 THEN
-    -- Raise an error or take appropriate action (e.g., notify staff, prevent the order)
-    RAISE_APPLICATION_ERROR(-20001, 'Insufficient quantity of ingredients in stock');
-ELSE
-    -- Update the stock by decrementing the quantity of ingredients used in the ordered meal
-UPDATE Stock
-SET Quantity = Quantity - 1
-WHERE K_Name = :NEW.K_Name
-  AND I_Id = (SELECT I_Id FROM Recipe WHERE M_Id = :NEW.M_Id);
+  IF
+:NEW.Quantity = 0 THEN
+    :NEW.Quantity := 10;
 END IF;
 END;
 /
 
 
-
 CREATE
-OR REPLACE TRIGGER Update_Salary
-AFTER
-UPDATE ON Work
-    FOR EACH ROW
+OR REPLACE TRIGGER Delete_Employee_If_Supplier
+BEFORE INSERT ON Employee
+FOR EACH ROW
+DECLARE
+v_Supplier_Count INTEGER;
 BEGIN
-  -- Update the employee's salary in the Employee table
-UPDATE Employee
-SET E_Salary = :NEW.E_Salary
+  -- Check if the new employee's telephone number exists in the Supplier table
+SELECT COUNT(*)
+INTO v_Supplier_Count
+FROM Supplier
+WHERE S_Telephone = :NEW.E_Telephone;
+
+-- If a match is found, delete the employee
+IF
+v_Supplier_Count > 0 THEN
+DELETE
+FROM Employee
 WHERE E_Id = :NEW.E_Id;
-COMMIT; -- Commit the changes to make them permanent
+-- Display a message or log the deletion
+DBMS_OUTPUT
+.
+PUT_LINE
+('Employee with telephone number ' || :NEW.E_Telephone || ' is already a supplier. Employee record deleted.');
+END IF;
 END;
 /
