@@ -14,7 +14,7 @@ END;
 
 CREATE
 OR REPLACE TRIGGER Delete_Employee_If_Supplier
-BEFORE INSERT ON Employee
+AFTER INSERT ON Employee
 FOR EACH ROW
 DECLARE
 v_Supplier_Count INTEGER;
